@@ -1,0 +1,10 @@
+{
+   "name":"Nesmma TTCash",
+   "description":"Jeu Nessma TTCash en collaboration avec Tunisie Telecom",
+   "launch_path":"/oldindex.html",
+   "icons":{"128":"icon.png"  },
+   "developer":{
+   "name":"Moussa Khaled"
+   },
+   "default_locale":"fr"
+}

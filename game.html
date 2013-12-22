@@ -1,0 +1,1321 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Mobile</title>
+
+		<meta name="viewport"
+		content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,
+		width=device-width, height=device-height, target-densitydpi=device-dpi"/>
+
+		<script type="text/javascript">
+			console.log(navigator.userAgent);
+			if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry|IEMobile)/)) {
+				console.log("mobile");
+				var head = document.getElementsByTagName('head')[0];
+				var script = document.createElement('script');
+				script.type = 'text/javascript';
+				script.src = 'cordova.js';
+				head.appendChild(script);
+				isMobile = true;
+			} else {
+				isMobile = false;
+				document.title = "Windows";
+			}
+			/*
+			 console.log(navigator.appVersion);
+			 if (navigator.appVersion.indexOf("Windows", 1) == -1) {
+			 var src = "cordova.js";
+
+			 var script = document.createElement("script");
+			 script.setAttribute("src", src);
+			 document.getElementsByTagName("head")[0].appendChild(script);
+			 } else
+			 document.title = "Windows";
+			 */
+
+		</script>
+
+		<script type="text/javascript" src="jquery-1.10.2.js"></script>
+		<script type="text/javascript" src="Sprite.js"></script>
+		<script type="text/javascript" src="soundjs-0.5.1.min.js"></script>
+		<script type="text/javascript" src="FastCanvas.js"></script>
+		<script type="text/javascript" src="PGLowLatencyAudio.js"></script>
+
+		<style type="text/css">
+			#canvasElem {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width:100%;
+				height:100%;
+				overflow: hidden;
+				margin: 0;
+				padding: 0;
+				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+				box-shadow:#000;
+			}
+			#mydiv {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width:100%;
+				height:100%;
+				overflow: hidden;
+				margin: 0;
+				padding: 0;
+				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+			}
+			#one{
+				position: absolute;
+				left: 0;
+				top: 0;
+				width:100%;
+				height:100%;
+				background:url(images/transparent.png);
+				background-size: 100%;
+				
+				
+			}
+		
+			#logo {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				margin-top: -200px;
+				margin-left: -200px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="one">
+        <div id="mydiv">
+			<img id="canvasElem" src="images/back.jpg"/>
+            <img id="logo"src="images/Logo.png" width="400"	height="400"/>
+        </div>   
+		</div>
+
+		<script type="text/javascript">
+			state = new Array(10);
+			num = new Array();
+			nums = new Array();
+
+			orngs = new Array();
+			bleus = new Array();
+			griss = new Array();
+			btns = new Array();
+			crns = new Array();
+			keys = new Array();
+			state = new Array();
+			marked = new Array();
+
+			counterminutes = 3;
+			isMobile = true;
+			mobileType = "";
+			inbackGround = false;
+
+			currentRow = -1;
+			numimages = 19;
+			curImg = 0;
+			loaded = 0;
+			acceptKeys = 0;
+
+			angle = 0.0;
+			TopChrono = false;
+			LastTick = 0;
+
+			cadres = new Array();
+			var Mouse = {};
+			Mouse.x = 0;
+			Mouse.y = 0;
+			firstTime = true;
+
+			PausePressed = false;
+			quitScreen = false;
+
+			myEvent = function() {
+			};
+
+			Mouse.isTouchSupported = "ontouchstart" in window;
+			Mouse.START = Mouse.isTouchSupported ? "touchstart" : "mousedown";
+			Mouse.MOVE = Mouse.isTouchSupported ? "touchmove" : "mousemove";
+			Mouse.END = Mouse.isTouchSupported ? "touchend" : "mouseup";
+
+			PlayList = new Array();
+
+			function getRandomNumber() {
+				num[0] = 9;
+				var number = "9";
+				for ( i = 1; i < 8; i++) {
+					if (i == 1) {
+						num[i] = 2 + Math.floor(Math.random() * 8);
+					} else {
+						num[i] = Math.floor(Math.random() * 10);
+					}
+
+					number = number + num[i].toString();
+				}
+				console.log(number);
+			}
+
+			function updateObjectIframe(which) {
+				//document.getElementById('one').innerHTML = '<'+'object id="foo" name="foo" type="text/html" data="'+which.href+'"><\/object>';
+				document.getElementById('mydiv').innerHTML = which;
+			}
+
+			function loadimage(src, onloadimg) {
+				// html5
+				var i = 0;
+				if (document.title == "Android") {
+					i = FastCanvas.createImage();
+					//console.log("loading image " + src);
+				} else {
+					i = new Image();
+					//console.log("clasic loading image " + src);
+				}
+				//android
+				loaded++;
+				i.onload = function() {
+					imgloaded();
+				};
+				i.src = src;
+				return i;
+			}
+
+			function imgloaded() {
+				loaded--;
+			}
+
+			function handleLoad(event) {
+				loaded--;
+			}
+
+			function getPhoneGapPath() {
+
+				var path = window.location.pathname;
+				path = path.substr(path, path.length - 10);
+				return 'file://' + path;
+
+			};
+			function loadAudio(url, p) {
+				// Play the audio file at url
+				/*
+				 if ((url == "audio/high.wav") && p) {
+				 PlayList[0].obj.play();
+				 return;
+				 }
+				 if ((url == "audio/moy.wav") && p) {
+				 PlayList[1].obj.play();
+				 return;
+				 }
+				 if ((url == "audio/low.wav") && p) {
+				 PlayList[2].obj.play();
+				 return;
+				 }
+				 */
+				{
+					my_media = new Media(getPhoneGapPath() + url,
+
+					// success callback
+					function() {
+						console.log("playAudio():Audio Success");
+						//my_media.release();
+					},
+
+					// error callback
+					function(err) {
+						console.log("playAudio():Audio Error: " + err);
+					});
+					if (p) {
+						my_media.play()
+					};
+					var i = 3;
+					while (i < PlayList.length) {
+						if (PlayList[i].obj.getDuration() >= PlayList[i].dur) {
+							console.log("freeing media");
+							PlayList[i].obj.release();
+							PlayList.splice(i, 1);
+						} else
+							i++;
+					}
+					e = new Object();
+					e.obj = my_media;
+					e.dur = my_media.getDuration();
+					PlayList.push(e);
+				}
+			}
+
+			function playAudio(name) {
+				for (var i = 0; i < manifest.length; i++) {
+					if (manifest[i].id == name) {
+						if (document.title == "Android") {
+							PGLowLatencyAudio.play(name);
+							//loadAudio(manifest[i].src, true);
+						} else {
+							createjs.Sound.play(name);
+						}
+					}
+				}
+			}
+
+			function loadimages(callback) {
+				if (document.title == "Android") {
+					canvas = FastCanvas.create();
+					context = canvas.getContext("2d");
+					console.log("FastCanvas Created")
+				}
+
+				bk = loadimage('images/back.png', loaded);
+
+				tall = loadimage('images/all.png', loaded);
+				bands = loadimage('images/elements.png', loaded);
+				msgs = loadimage('images/messages.png', loaded);
+
+				dtmf = new Array();
+				manifest = [{
+					id : "onerow",
+					src : "audio/ShowName.wav"
+				}, {
+					id : "tonh",
+					src : "audio/high.wav"
+				}, {
+					id : "tonm",
+					src : "audio/moy.wav"
+				}, {
+					id : "tonl",
+					src : "audio/low.wav"
+				}, {
+					id : "dtmf0",
+					src : "audio/cell-phone-1-nr0.wav"
+				}, {
+					id : "dtmf1",
+					src : "audio/cell-phone-1-nr1.wav"
+				}, {
+					id : "dtmf2",
+					src : "audio/cell-phone-1-nr2.wav"
+				}, {
+					id : "dtmf3",
+					src : "audio/cell-phone-1-nr3.wav"
+				}, {
+					id : "dtmf4",
+					src : "audio/cell-phone-1-nr4.wav"
+				}, {
+					id : "dtmf5",
+					src : "audio/cell-phone-1-nr5.wav"
+				}, {
+					id : "dtmf6",
+					src : "audio/cell-phone-1-nr6.wav"
+				}, {
+					id : "dtmf7",
+					src : "audio/cell-phone-1-nr7.wav"
+				}, {
+					id : "dtmf8",
+					src : "audio/cell-phone-1-nr8.wav"
+				}, {
+					id : "dtmf9",
+					src : "audio/cell-phone-1-nr9.wav"
+				}, {
+					id : "failure",
+					src : "audio/failure.wav"
+				}, {
+					id : "success",
+					src : "audio/success.wav"
+				}];
+				if (document.title == "Windows") {
+					if (createjs.Sound.initializeDefaultPlugins()) {
+
+						loaded += manifest.length;
+						createjs.Sound.registerManifest(manifest);
+						createjs.Sound.addEventListener("loadComplete", handleLoad);
+					}
+				} else {
+					for (var i = 0; i < manifest.length; i++) {
+						PGLowLatencyAudio.preloadFX(manifest[i].id, manifest[i].src);
+					}
+				}
+				window.setTimeout(testifimagesloaded, 1000);
+			}
+
+			function testifimagesloaded() {
+				console.log(loaded);
+				if (loaded < 18) {
+					allImagesLoaded();
+				} else {
+					window.setTimeout(testifimagesloaded, 500);
+				}
+			}
+
+			function handlebutton(idx)
+			{
+									if (idx < 10) {
+							if (acceptKeys == 1) {
+
+								if (NumIndex < 7) {
+									//							dtmf[this.data].play();
+									playAudio("dtmf" + idx.toString());
+									revealElement(NumIndex, currentRow, 1, idx);
+									keys[NumIndex] = idx;
+									NumIndex++;
+								}
+
+								if (NumIndex == 7) {
+									accpetKeys = 0;
+									NumIndex = 1;
+									rowIdx = 1;
+									acceptKeys = 0;
+									window.setTimeout(verifyRow, 600);
+								}
+							}
+						}
+						if (idx == 10 && acceptKeys == 1) {
+							if (NumIndex > 1) {
+								NumIndex--;
+								container.AddAnimation(cadres[NumIndex + currentRow * 8], "scale", 1, 0, 0, 100);
+								container.AddAnimation(cadres[NumIndex + currentRow * 8], "scale", 0, 1, 100, 100);
+								container.AddAnimation(cadres[NumIndex + currentRow * 8], "xs", "xs", 44 * 10, 0, 100, "Box");
+								container.AddAnimation(cadres[NumIndex + currentRow * 8], "ys", "ys", 47 * 1, 0, 100, "Box");
+							}
+						}
+			}
+
+			function allImagesLoaded() {
+				if (document.title != "Android") {
+					var w = '<canvas id="canvasElem" >"Unsupported"</canvas>';
+					updateObjectIframe(w);
+
+					canvas = document.getElementById('canvasElem');
+
+					if (!canvas || !canvas.getContext) {
+						return;
+					}
+					canvas.onselectstart = function() {
+						return false;
+					}
+					// On r?cup?re le contexte 2D
+					context = canvas.getContext('2d');
+					if (!context) {
+						return;
+					}
+				}
+
+				document.addEventListener(Mouse.MOVE, cnvmousemove);
+				document.addEventListener(Mouse.START, cnvmousedown);
+				document.addEventListener(Mouse.END, cnvmouseup);
+
+				//canvas.onclick = cnvclick;
+
+				//Cnv = new Container(canvas);
+				container = new Container(canvas);
+
+				//objects=new Array();
+				sbk = new Sprite(container, bk, container.objects, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+				squit = new Sprite(container, tall, container.objects, 0, 448, 235, 55, 0, 0, 0, 0, 0, 1);
+				sbtn = new Sprite(container, tall, container.objects, 0, 392, 235, 55, 0, 0, 0, 0, 0, 1);
+				spause = new Sprite(container, tall, container.objects, 0, 336, 235, 55, 0, 0, 0, 0, 0, 1);
+
+				stopband = new Sprite(container, bands, container.objects, 0, 383, 512, 63, 0, 30, 720, 63, 0, 1);
+				snessma = new Sprite(container, tall, container.objects, 71 - 12, 298 - 48, 67 + 8, 73 + 8, 0, 2, 0, 0, 0, 1);
+				stelecom = new Sprite(container, tall, container.objects, 165 - 32, 299 - 48, 94 + 8, 75 + 8, 0, 2, 0, 0, 0, 1);
+
+				sband = new Sprite(container, bands, container.objects, 0, 0, 512, 378, 0, 0, 0, 0, 0, 1);
+				sband.height = 412;
+				sband.width = 537;
+				scadre = new Sprite(container, bands, container.objects, 7, 447, 429, 49, 0, 0, 0, 0, 0, 0);
+
+				chrono = new Array();
+				chrono[0] = new Sprite(container, tall, container.objects, 0, 141, 32, 50, 0, 30, 0, 0, 0, 1);
+				chrono[1] = new Sprite(container, tall, container.objects, 0, 141, 32, 50, 0, 30, 0, 0, 0, 1);
+				chrono[2] = new Sprite(container, tall, container.objects, 0, 141, 32, 50, 0, 30, 0, 0, 0, 1);
+
+				buttons = new Array();
+				for ( i = 0; i < 11; i++) {
+					if (i == 9)
+						buttons[i] = new Sprite(container, tall, container.objects, 0, 224 + 56 - 32, 56, 56, 0, 0, 0, 0, i, 1);
+					else if (i == 10)
+						buttons[i] = new Sprite(container, tall, container.objects, 8 * 56, 224 - 56 - 32, 56, 56, 0, 0, 0, 0, i, 1);
+					else
+						buttons[i] = new Sprite(container, tall, container.objects, i * 56, 224 - 32, 56, 56, 0, 0, 0, 0, i, 1);
+					buttons[i].visible = 0;
+					buttons[i].shadow = 10;
+					data = new Object();
+					data.id = i;
+					data.x = 0;
+					data.y = 0;
+					buttons[i].data = data;
+					buttons[i].setproperties("shadowxs", 292, "shadowys", 299 - 48, "shadowws", 66, "shadowhs", 66, "shadowOffsetX", -2, "shadowOffsetY", -2);
+					buttons[i].onMouseDown = function() {
+						this.x = this.data.x + 3;
+						this.y = this.data.y + 3;
+						this.shadow = 0;
+					}
+
+					buttons[i].onMouseUp = function() {
+						this.x = this.data.x;
+						this.y = this.data.y;
+						this.shadow = 10;
+						idx = this.data.id;
+
+handlebutton(idx);
+					}
+				}
+				var idx = 0;
+				for ( i = 0; i < 8; i++) {
+					for ( j = 0; j < 8; j++) {
+						cadres[j + i * 8] = new Sprite(container, tall, container.objects, 438, 46, 43, 46, 0, 0, 0, 0, 0, 1);
+						cadres[j + i * 8].shadow = 0;
+						cadres[j + i * 8].opacity = 0.5;
+						cadres[j + i * 8].setproperties("shadowxs", 394, "shadowys", 309 - 56, "shadowws", 51, "shadowhs", 55, "shadowOffsetX", -3, "shadowOffsetY", -3, "shadowopacity", 0.5);
+					}
+				}
+
+				sbtn.onMouseUp = function() {
+					sbtn.xs = 0;
+					initAll();
+					currentRow++;
+					revealRow();
+					TopChrono = true;
+					spause.opacity = 1;
+					LastTick = new Date().getTime();
+				}
+
+				sbtn.onMouseDown = function() {
+					//container.AddAnimation(sbtn, "x", 0, 500, 1000);
+					sbtn.xs = 241;
+				}
+
+				squit.onMouseDown = function() {
+					squit.xs = 241;
+				}
+				squit.onMouseUp = function() {
+					handleQuit();
+					squit.xs=0;
+				}
+
+				spause.onMouseDown = function() {
+					spause.xs = 241;
+					if (!PausePressed) {
+						//Pause
+						inGame = false;
+						if (TopChrono) {
+							acceptKeys = 0;
+							inGame = true;
+							TopChrono = false;
+							var timestamp = new Date().getTime();
+							oldTicks = Math.round((timestamp - LastTick) / 1000);
+						}
+						PausePressed = true;
+					} else {
+						PausePressed = false;
+						if (inGame) {
+							acceptKeys = 1;
+							var timestamp = new Date().getTime();
+
+							LastTick = timestamp - oldTicks * 1000;
+							TopChrono = true;
+						}
+
+						requestAnimFrame(myrefresh);
+					}
+				}
+				spause.onMouseUp = function() {
+					if (!PausePressed) {
+						spause.xs = 0;
+					}
+				}
+				noir = new Sprite(container, tall, container.objects, 308, 270, 8, 8, 0, 0, 0, 0, 0, 0);
+				noir.opacity = 0.75;
+				noir.onMouseDown = function() {
+					noir.visible = 0;
+					bravo.visible = 0;
+					myEvent = function() {
+					};
+					//initAll();
+					revealSolution();
+					for ( i = 0; i < 11; i++) {
+
+						container.AddAnimation(buttons[i], "x", "x", -buttons[i].width - 10, i * 25, 400);
+
+					}
+				}
+				bravo = new Sprite(container, msgs, container.objects, 84, 15, 336, 72, 0, 0, 0, 0, 0, 0);
+
+				initAll();
+				var ww = $("mydiv").innerWidth();
+				var hh = $("mydiv").innerHeight();
+
+				
+onwindowresize();
+				//updateDim(ww, hh);
+
+				myrefresh();
+				//window.setTimeout(dogame, 3000);
+			}
+
+			function handleQuit() {
+				if (!quitScreen) {
+					blk1 = new Sprite(container, tall, container.objects, 308, 270, 8, 8, 0, 0, canvaswidth, canvasheight, 0, 1);
+					msg1 = new Sprite(container, msgs, container.objects, 0, 376, 512, 80, 0, 0, 0, 0, 0, 1);
+					msgoui = new Sprite(container, msgs, container.objects, 28, 462, 92, 44, 0, 0, 0, 0, 0, 1);
+					msgnon = new Sprite(container, msgs, container.objects, 132, 462, 110, 44, 0, 0, 0, 0, 0, 1);
+					blk1.opacity=0.75;
+
+					msgoui.onMouseEnter=function()
+					{
+					   msgoui.xs=280;
+					   msgoui.scale=1.2;
+					}
+					msgoui.onMouseLeave = function() {
+					   msgoui.xs = 28;
+						msgoui.scale=1;
+					}
+					msgoui.onMouseUp = function() {
+						msgoui.xs = 28;
+						msgoui.scale=1;
+						
+						window.close();
+					}
+					msgnon.onMouseEnter=function()
+					{
+					   msgnon.xs=384;
+					   msgnon.scale=1.2;
+					}
+					msgnon.onMouseLeave = function() {
+					   msgnon.xs = 132;
+						msgnon.scale=1;
+					}
+					msgnon.onMouseUp = function() {
+					blk1.visible = 0;
+				msg1.visible = 0;
+				msgoui.visible = 0;
+				msgnon.visible = 0;
+					}
+				}
+				blk1.visible = 1;
+				msg1.visible = 1;
+				msgoui.visible = 1;
+				msgnon.visible = 1;
+
+                msg1.x=(canvaswidth-msg1.width)/2;
+                msg1.y=((canvasheight/2)-msg1.height);
+
+                msgoui.x=((canvaswidth/2)-msgoui.width)/2;
+                msgoui.y=(canvasheight/2)+((canvasheight/2)-msgoui.height)/2;
+
+                msgnon.x=(canvaswidth/2)+((canvaswidth/2)-msgoui.width)/2;
+                msgnon.y=(canvasheight/2)+((canvasheight/2)-msgoui.height)/2;
+			}
+
+			function dogame() {
+				currentRow++;
+				revealRow();
+				TopChrono = true;
+				spause.opacity = 1;
+				LastTick = new Date().getTime();
+			}
+
+			function initAll() {
+				getRandomNumber();
+				for ( i = 0; i < 8; i++) {
+					for ( j = 0; j < 8; j++) {
+						cadres[j + i * 8].xs = 10 * 44;
+						cadres[j + i * 8].ys = 47;
+						cadres[j + i * 8].opacity = 0.5;
+					}
+				}
+				rowIdx = 1;
+				currentRow = -1;
+				TopChrono = false;
+				chrono[0].xs = 44 * counterminutes;
+				chrono[1].xs = 0;
+				chrono[2].xs = 0;
+				scadre.opacity = 0;
+				spause.opacity = 0.5;
+			}
+
+			delay = 150;
+			rowIdx = 1;
+
+			function verifyRow() {
+				if (rowIdx == 7) {
+					var all = true;
+					for ( k = 1; k < 7; k++)
+						if (keys[k] != num[k]) {
+							all = false;
+							break;
+						}
+
+					if (all) {
+						acceptKeys = 0;
+						TopChrono = false;
+						noir.visible = 1;
+						bravo.setproperties("xs", 84, "ys", 15, "w", 336, "h", 72, "visible", 1);
+						bravo.x = (canvaswidth - 336) / 2;
+						bravo.y = (canvasheight - 72) / 2;
+						playAudio("success");
+						myEvent = function() {
+							var timestamp = new Date().getTime();
+							bravo.scale = 1 + 0.1 * Math.sin(timestamp / 250);
+						};
+					} else {
+						currentRow++;
+						if (currentRow == 8) {
+							TopChrono = false;
+							acceptKeys = 0;
+
+							noir.visible = 1;
+							bravo.setproperties("xs", 0, "ys", 256, "w", 512, "h", 102, "visible", 1);
+							bravo.x = (canvaswidth - 512) / 2;
+							bravo.y = (canvasheight - 102) / 2;
+							playAudio("failure");
+							myEvent = function() {
+								var timestamp = new Date().getTime();
+								bravo.scale = 1 + 0.1 * Math.sin(timestamp / 250);
+							};
+						} else
+							window.setTimeout(revealRow, delay * 2);
+					}
+					return;
+				}
+
+				var i = rowIdx;
+				//for (i=1;i<7;i++)
+				if (i == 1) {
+					for ( j = 1; j < 7; j++) {
+						if (keys[j] == num[j])
+							state[j] = 1;
+						else
+							state[j] = 0;
+						marked[j] = 0;
+					}
+				} {
+					// case juste
+					if (keys[i] == num[i]) {
+
+						//						tonh.play();
+						playAudio("tonh");
+						//container.AddAnimation(cadres[i + currentRow * 8], "scale", 1, 0, 0, delay);
+						//container.AddAnimation(cadres[i + currentRow * 8], "scale", 0, 1, delay, delay);
+						//container.AddAnimation(cadres[i + currentRow * 8], "img", "img", bleus[keys[i]], 0, delay);
+						revealElement(i, currentRow, 0, keys[i], delay);
+					} else {
+						var found = 0;
+						for ( k = 1; k < 7; k++) {
+							if ((keys[i] == num[k]) && (state[k] == 0) && (marked[k] == 0)) {
+								marked[k] = 1;
+								found = 1;
+								break;
+							}
+						}
+						if (found == 1) {
+							playAudio("tonm");
+							//container.AddAnimation(cadres[i + currentRow * 8], "scale", 1, 0, 0, delay);
+							//container.AddAnimation(cadres[i + currentRow * 8], "scale", 0, 1, delay, delay);
+							//							container.AddAnimation(cadres[i + currentRow * 8], "img", "img", orngs[keys[i]], 0, delay);
+							revealElement(i, currentRow, 2, keys[i], delay);
+						} else {
+							playAudio("tonl");
+							//container.AddAnimation(cadres[i + currentRow * 8], "scale", 1, 0, 0, delay);
+							//container.AddAnimation(cadres[i + currentRow * 8], "scale", 0, 1, delay, delay);
+							//container.AddAnimation(cadres[i + currentRow * 8], "img", "img", griss[keys[i]], 0, delay);
+							revealElement(i, currentRow, 1, keys[i], delay);
+						}
+					}
+				}
+				rowIdx++;
+				{
+					window.setTimeout(verifyRow, delay * 2);
+				}
+			}
+
+			function revealElement(col, row, color, idx) {
+				container.AddAnimation(cadres[col + row * 8], "scale", 1, 0, 0, 100);
+				container.AddAnimation(cadres[col + row * 8], "scale", 0, 1, 100, 100);
+				container.AddAnimation(cadres[col + row * 8], "xs", "xs", 44 * idx, 0, 100, "Box");
+				container.AddAnimation(cadres[col + row * 8], "ys", "ys", 47 * color, 0, 100, "Box");
+				//container.AddAnimation(cadres[col + row * 8], "img", "img", color, 0, 100);
+			}
+
+			function revealElementdelay(col, row, color, idx, delay) {
+				container.AddAnimation(cadres[col + row * 8], "scale", 1, 0, delay, 100);
+				container.AddAnimation(cadres[col + row * 8], "scale", 0, 1, delay+100, 100);
+				container.AddAnimation(cadres[col + row * 8], "xs", "xs", 44 * idx, delay, 100, "Box");
+				container.AddAnimation(cadres[col + row * 8], "ys", "ys", 47 * color, delay, 100, "Box");
+			}
+
+			function revealSolution()
+			{
+				var r=currentRow;
+				if (r==8) r=7;
+			   for ( k = 1; k < 7; k++)
+			   {
+			     revealElementdelay(k,r,0,num[k],400*k);
+			   }
+			}
+
+			function revealRow() {
+				if (currentRow < 0)
+					return;
+				if (currentRow > 7)
+					return;
+				//				onerow.play();
+				playAudio("onerow");
+				var toy = bandy + 5 + currentRow * (5 + 43);
+				scadre.x = sband.x + 53;
+				if (currentRow == 0) {
+					table = [{
+						x : 0,
+						y : 15,
+						o : 1
+					}, {
+						x : 0,
+						y : 0,
+						o : 2
+					}, {
+						x : 1,
+						y : 0,
+						o : 3
+					}, {
+						x : 2,
+						y : 0,
+						o : 4
+					}, {
+						x : 0,
+						y : 5,
+						o : 5
+					}, {
+						x : 1,
+						y : 5,
+						o : 6
+					}, {
+						x : 2,
+						y : 5,
+						o : 7
+					}, {
+						x : 0,
+						y : 10,
+						o : 8
+					}, {
+						x : 1,
+						y : 10,
+						o : 9
+					}, {
+						x : 2,
+						y : 10,
+						o : 0
+					}, {
+						x : 2,
+						y : 15,
+						o : 10
+					}]
+
+					// if first row show scadre
+					scadre.y = toy;
+					scadre.visible = 1;
+					container.AddAnimation(scadre, "opacity", 0, 1, 0, 300);
+
+					//container.AddAnimation(sbtn, "x", "x", -sbtn.width, 0, 300);
+					//container.AddAnimation(squit, "x", "x", canvaswidth, 0, 300);
+					//var gap = (canvaswidth - (10 * 56)) / 11;
+					var gap = (sband.height - 20) / 19;
+					var gapx = sband.x / 16;
+					var www = Math.min(gapx, gap);
+
+					gapx = (sband.x - www * 4 * 3) / 4;
+					var x = 0;
+					var y = sband.y;
+					var add = 0;
+					//console.log(gap);
+					for ( j = 0; j < 11; j++) {
+						i = table[j].o;
+						buttons[i].visible = 1;
+
+						x = gapx + (gapx + www * 4) * table[i].x;
+						y = sband.y + gap * table[i].y;
+
+						buttons[i].x = -gapx * 4;
+						buttons[i].y = y;
+
+						buttons[i].x1 = -gapx / 2;
+						buttons[i].x2 = gapx / 2;
+
+						buttons[i].data.x = x;
+						buttons[i].data.y = y;
+
+						buttons[i].opacity = 0;
+
+						buttons[i].width = www * 4;
+						buttons[i].height = www * 4;
+
+						buttons[i].shadowwd = www * 4 + 10;
+						buttons[i].shadowhd = www * 4 + 10;
+
+						container.AddAnimation(buttons[i], "x", -x - gapx * 4, x, i * 50, 400);
+						container.AddAnimation(buttons[i], "opacity", 0, 1, i * 50, 400);
+					}
+				} else {
+					container.AddAnimation(scadre, "y", "y", toy, 0, 300);
+				}
+				for ( i = 0; i < 8; i++) {
+					container.AddAnimation(cadres[i + currentRow * 8], "opacity", 0.5, 1, i * 25, 400);
+					container.AddAnimation(cadres[i + currentRow * 8], "scale", 1, 0, i * 25, 400);
+					container.AddAnimation(cadres[i + currentRow * 8], "scale", 0, 1, 400 + i * 25, 400);
+					if (i == 0) {
+						container.AddAnimation(cadres[i + currentRow * 8], "xs", "xs", 44 * 9, i * 25, 400, "Box");
+						container.AddAnimation(cadres[i + currentRow * 8], "ys", "ys", 0, i * 25, 400, "Box");
+					}
+
+					if (i == 7) {
+						container.AddAnimation(cadres[i + currentRow * 8], "xs", "xs", 44 * 10, i * 25, 400, "Box");
+						container.AddAnimation(cadres[i + currentRow * 8], "ys", "ys", 0, i * 25, 400, "Box");
+					}
+					if (i > 0 && i < 7) {
+						container.AddAnimation(cadres[i + currentRow * 8], "xs", "xs", 44 * 10, i * 25, 400, "Box");
+						container.AddAnimation(cadres[i + currentRow * 8], "ys", "ys", 47, i * 25, 400, "Box");
+					}
+
+				}
+				NumIndex = 1;
+				window.setTimeout(function() {
+					acceptKeys = 1
+				}, 8 * 25 + 800);
+				//console.log(container.animationmanager.animations.length);
+			}
+
+			function oldupdateDim(width, height) {
+				windowWidth = width;
+				windowHeight = height;
+
+				found = false;
+				if (width > height) {
+					var ratio = 576.0 / height.toFixed();
+					canvasheight = 576;
+					canvaswidth = Math.round(width.toFixed() * ratio);
+					if (1.25 <= (width.toFixed() / height.toFixed())) {
+
+						firstx = (canvaswidth - 720) / 2;
+						firsty = 0;
+						btnx = 476;
+						bandy = 119 - 15 - 5;
+						bottombary = canvasheight - 72;
+
+						nessmax = 540;
+						telecomx = 82;
+						if (document.title == "Android") {
+							ratio = height / 576;
+							//context.scale(ratio, ratio);
+							console.log(ratio);
+							console.log(canvaswidth);
+							console.log(canvasheight);
+						}
+						sens = "paysage";
+						found = true
+					}
+				} else {
+					var ratio = 576.0 / width.toFixed();
+					canvaswidth = 576;
+					canvasheight = Math.round(height.toFixed() * ratio);
+					firstx = 0;
+					firsty = (canvasheight - 720) / 2;
+					btnx = 304;
+
+					bandy = 108 + (canvasheight - 108 - 72 - 378) / 2;
+					bottombary = canvasheight - 72;
+
+					nessmax = 432;
+					telecomx = 82;
+					sens = "portrait";
+					found = true
+				}
+				//return;
+				if (document.title != "Android") {
+					canvas.width = canvaswidth;
+					canvas.height = canvasheight;
+					context = canvas.getContext('2d');
+				}
+				
+				sbk.width = canvaswidth;
+				sbk.height = canvasheight;
+
+				container.width = canvaswidth;
+				container.height = canvasheight;
+				container.updateRect.set(canvaswidth, canvasheight, 0, 0);
+
+				noir.width = canvaswidth;
+				noir.height = canvasheight;
+
+				var gp = (canvaswidth - 3 * sbtn.width) / 4;
+				sbtn.x = gp;
+				sbtn.y = bottombary + 8;
+				spause.x = gp * 2 + sbtn.width;
+				spause.y = bottombary + 8;
+				squit.x = gp * 3 + sbtn.width * 2;
+				squit.y = bottombary + 8;
+
+				stopband.x = firstx;
+				stopband.width = Math.min(stopband.width, canvaswidth);
+
+				snessma.x = firstx + nessmax;
+				stelecom.x = firstx + telecomx;
+
+				sband.x = (canvaswidth - sband.width);
+				sband.y = bandy;
+
+				var y = bandy + 6;
+				for ( i = 0; i < 8; i++) {
+					var x = sband.x + 56;
+					for ( j = 0; j < 8; j++) {
+						cadres[j + i * 8].x = x;
+						cadres[j + i * 8].y = y;
+						x = x + 43 + 8;
+						if (j == 1)
+							x = x + 22;
+					}
+					y = y + 5 + 43;
+				}
+
+				w = 32;
+				chrono[0].x = (canvaswidth - 3 * w - w / 2 - 4) / 2;
+				chrono[1].x = chrono[0].x + w + w / 2;
+				chrono[2].x = chrono[1].x + w + 4;
+			}
+
+			function updateDim(width, height) {
+				windowWidth = width;
+				windowHeight = height;
+
+				found = false;
+				
+				canvasheight = 576;
+				canvaswidth = 980;
+				
+				var myscale=1.0;
+				var h=windowHeight;
+				var w=1.701388888888889*h;
+					
+				if (w>windowWidth)
+				{
+					myscale=windowWidth/w;
+					w=windowWidth;
+					h=w/1.701388888888889;
+				}
+
+				firstx = (canvaswidth - 720) / 2;
+				firsty = 0;
+				btnx = 476;
+				bandy = 119 - 15 - 5;
+				bottombary = canvasheight - 72;
+
+				nessmax = 540;
+				telecomx = 82;
+						
+				sens = "paysage";
+				found = true
+				
+				
+
+				//return;
+				if (document.title != "Android") {
+					canvas.width = canvaswidth;
+					canvas.height = canvasheight;
+					context = canvas.getContext('2d');
+				}
+				
+				sbk.width = canvaswidth;
+				sbk.height = canvasheight;
+
+				container.width = canvaswidth;
+				container.height = canvasheight;
+				container.updateRect.set(canvaswidth, canvasheight, 0, 0);
+
+				noir.width = canvaswidth;
+				noir.height = canvasheight;
+
+				var gp = (canvaswidth - 3 * sbtn.width) / 4;
+				sbtn.x = gp;
+				sbtn.y = bottombary + 8;
+				spause.x = gp * 2 + sbtn.width;
+				spause.y = bottombary + 8;
+				squit.x = gp * 3 + sbtn.width * 2;
+				squit.y = bottombary + 8;
+
+				stopband.x = firstx;
+				stopband.width = Math.min(stopband.width, canvaswidth);
+
+				snessma.x = firstx + nessmax;
+				stelecom.x = firstx + telecomx;
+
+				sband.x = (canvaswidth - sband.width);
+				sband.y = bandy;
+
+				var y = bandy + 6;
+				for ( i = 0; i < 8; i++) {
+					var x = sband.x + 56;
+					for ( j = 0; j < 8; j++) {
+						cadres[j + i * 8].x = x;
+						cadres[j + i * 8].y = y;
+						x = x + 43 + 8;
+						if (j == 1)
+							x = x + 22;
+					}
+					y = y + 5 + 43;
+				}
+
+				w = 32;
+				chrono[0].x = (canvaswidth - 3 * w - w / 2 - 4) / 2;
+				chrono[1].x = chrono[0].x + w + w / 2;
+				chrono[2].x = chrono[1].x + w + 4;
+			}
+			
+			function myrefresh() {
+				//sband.y = bandy+50*Math.sin(angle*3.14/180);
+				if (inbackGround)
+					return;
+				myEvent();
+				if (TopChrono) {
+					var timestamp = new Date().getTime();
+					var ticks = Math.round((timestamp - LastTick) / 1000);
+
+					var mins = counterminutes * 60 - ticks;
+					if (mins < 0) {
+						mins = 0;
+						TopChrono = false;
+						acceptKeys = 0;
+
+						noir.visible = 1;
+						bravo.setproperties("xs", 0, "ys", 128, "w", 512, "h", 104, "visible", 1);
+						bravo.x = (canvaswidth - 512) / 2;
+						bravo.y = (canvasheight - 104) / 2;
+						playAudio("failure");
+						myEvent = function() {
+							var timestamp = new Date().getTime();
+							bravo.scale = 1 + 0.1 * Math.sin(timestamp / 250);
+						};
+
+					}
+					var m = Math.floor((mins % 60) / 10);
+					var s = mins % 10;
+					chrono[2].xs = 44 * s;
+					chrono[1].xs = 44 * m;
+					m = Math.floor(mins / 60);
+					chrono[0].xs = 44 * m;
+				}
+				//console.log(canvas.width);
+
+				/*if (firstTime)
+				{
+				firstTime=false;
+				bkcontext.save();
+				bkcontainer.renderAll(bkcontext);
+				context.restore();
+				}
+				*/
+				//if (container.changed)
+				{
+					context.save();
+					
+					
+					//context.scale(myscale,myscale);
+					//context.clearRect(0,0,canvaswidth,canvasheight);
+					container.renderAll(context);
+					
+					if (document.title == "Android") {
+						FastCanvas.render();
+						//console.log("render");
+					}
+					context.restore();
+
+				}
+				//window.setTimeout(myrefresh, 1000/60);
+				requestAnimFrame(myrefresh);
+				container.BeginUpdate();
+			}
+
+
+			document.addEventListener("deviceready", onDeviceReady, false);
+
+			// device APIs are available
+			//
+			function onBackKeyDown() {
+				// Handle the back button
+			}
+
+			function onDeviceReady() {
+				if (document.title == "Mobile") {
+					var suff = "";
+					document.title = device.platform + suff;
+					mobileType = device.platform + suff;
+					if (document.title == "Android") {
+						isMobile = true;
+						//canvas = FastCanvas.create();
+						//context = canvas.getContext("2d");
+						console.log(document.title);
+						document.addEventListener("backbutton", onBackKeyDown, false);
+					}
+				}
+			}
+
+
+			document.addEventListener("pause", onPause, false);
+
+			function onPause() {
+				// Handle the pause event
+				inGame = false;
+				if (TopChrono) {
+					inGame = true;
+					TopChrono = false;
+					var timestamp = new Date().getTime();
+					oldTicks = Math.round((timestamp - LastTick) / 1000);
+				}
+				inbackGround = true;
+			}
+
+
+			document.addEventListener("resume", onResume, false);
+
+			function onResume() {
+				// Handle the resume event
+				if (inGame) {
+					var timestamp = new Date().getTime();
+
+					LastTick = timestamp - oldTicks * 1000;
+					TopChrono = true;
+				}
+				inbackGround = false;
+				requestAnimFrame(myrefresh);
+			}
+
+
+			window.requestAnimFrame = (function() {
+				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
+				function(callback) {
+					window.setTimeout(callback, 16);
+				};
+			})();
+
+			window.addEventListener('load', function() {
+				//updateDim(window.innerWidth, window.innerHeight);
+				window.setTimeout(dotherest, 1000);
+				wwidth=window.width;
+				wheight=window.height;
+			}, false);
+
+			function getMouseXY(event, elem) {
+				if (elem == undefined) {
+					elem = document.body;
+				}
+
+				var isTouch = false;
+
+				// touch screen events
+				if (event.touches) {
+					if (event.touches.length) {
+						isTouch = true;
+						mouseX = parseInt(event.touches[0].pageX);
+						mouseY = parseInt(event.touches[0].pageY);
+					}
+				} else {
+					// mouse events
+					mouseX = parseInt(event.clientX);
+					mouseY = parseInt(event.clientY);
+				}
+				//if (isMobile == false) {
+					mouseX = (mouseX-DivLeft) * canvas.width / DivWidth;
+					mouseY = (mouseY-DivTop) * canvas.height / DivHeight;
+			/*	} else {
+					ratio = canvasheight / 576;
+					mouseX = mouseX / ratio;
+					mouseY = mouseY / ratio;
+				}*/
+			}
+
+			function cnvmousemove(pos, elem) {
+				//context.clearRect(0,0,600,400);
+				getMouseXY(pos, elem);
+				container.MouseMove(mouseX, mouseY);
+				//console.log("mousemove "+x.toString()+" "+y.toString());
+			}
+
+			function cnvmousedown(pos, elem) {
+				//context.clearRect(0,0,600,400);
+				getMouseXY(pos, elem);
+				container.MouseDown(mouseX, mouseY);
+			}
+
+			function cnvmouseup(pos, elem) {
+				getMouseXY(pos, elem);
+
+				container.MouseUp(mouseX, mouseY);
+			}
+
+			function dotherest() {
+				loadimages();
+			}
+
+
+			document.addEventListener("touchend", function(e) {
+				e.preventDefault();
+			}, false);
+			
+			function onwindowresize()
+			{
+			    if ( typeof mywidth == 'undefined') {
+				mywidth=window.innerWidth ;
+				myheight=window.innerHeight ;
+				} //else
+				{
+					
+				//window.innerWidth=mywidth ;
+				//window.innerHeight=myheight ;
+				//window.resizeTo(mywidth,myheight);
+				var myscale=1.0;
+				
+				var h=window.innerHeight;
+				var w=1.701388888888889*h;
+					
+				if (w>=window.innerWidth)
+				{
+					myscale=window.innerWidth/w;
+					w=window.innerWidth;
+					h=w/1.701388888888889;
+				}
+				$("#mydiv").css("position","absolute");
+				$("#mydiv").css("left",Math.round((window.innerWidth-w)/2));
+				$("#mydiv").css("top",Math.round((window.innerHeight-h)/2));
+				$("#mydiv").css("width",Math.round(w)+"px");
+				$("#mydiv").css("height",Math.round(h)+"px");
+				DivLeft=Math.round((window.innerWidth-w)/2);
+				DivTop=Math.round((window.innerHeight-h)/2);
+				DivWidth=Math.round(w);
+				DivHeight=Math.round(h);
+				}
+				if ( typeof context != 'undefined') {
+					updateDim(w, h);
+				}
+			}
+			window.addEventListener('resize', onwindowresize, false);
+
+			//			document.addEventListener(Mouse.MOVE, handleMouseMove);
+
+			window.addEventListener("orientationchange", orientationChange, true);
+			function orientationChange(e) {
+				if ( typeof context != 'undefined') {
+					updateDim(window.innerWidth, window.innerHeight);
+				}
+			}
+			document.addEventListener("keydown", keyDownTextField, false);
+
+function keyDownTextField(e) {
+var keyCode = e.keyCode;
+  if (keyCode>95 && keyCode<106)
+  {
+  handlebutton(keyCode-96);
+  }
+  if (keyCode==8)
+  {
+  handlebutton(10);
+  }
+}
+
+		</script>
+	</body>
+</html>
